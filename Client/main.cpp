@@ -67,7 +67,9 @@ void main()
 
 	//5) Отправка данных Серверу:
 
-	CHAR send_buffer[MTU] = "Hello Server!!!";
+	CHAR send_buffer[MTU] = {};
+	cout << "Введите сообщение" << endl;
+	cin.getline(send_buffer, MTU);
 	iResult = send(connect_socket, send_buffer, strlen(send_buffer), NULL);
 	if (iResult == SOCKET_ERROR)
 	{
