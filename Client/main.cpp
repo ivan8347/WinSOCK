@@ -12,6 +12,8 @@
 using namespace std;
 #pragma comment(lib, "WS2_32.lib")//подгружает реализации фукций из статической библиотеки для <WS2TCPIP.h>
 #define MTU		1500
+VOID Receive(SOCKET connect_socket);
+
 void main()
 {
 	setlocale(LC_ALL, "");
@@ -64,6 +66,18 @@ void main()
 	}
 	freeaddrinfo(target);
 
+	DWORD dwThreadID = 0;
+	HANDLE hReceiveThread = CreateThread
+	(
+		NULL,
+		NULL,
+		(LPTHREAD_START_ROUTINE)Receive,
+		(LPVOID)connect_socket,
+		NULL,
+		&dwThreadID
+
+	);
+
 
 	//5) Отправка данных Серверу:
 
@@ -81,14 +95,8 @@ void main()
 		}
 		else cout << "Sent " << iResult << " Bytes" << endl;
 
-		//6) Получение данных от Сервера:
 
-		CHAR recv_buffer[MTU] = {/*initializer_list*/ };
-
-		iResult = recv(connect_socket, recv_buffer, MTU, NULL);
-		if (iResult > 0)cout << recv_buffer << endl;
-		else if (iResult == 0) cout << "Nothing received from Server" << endl;
-		else cout << "Receive failed with error: " << WSAGetLastError() << endl;
+		
 
 		cout << "Введите сообщение" << endl;
 		SetConsoleCP(1251);
@@ -100,9 +108,25 @@ void main()
 
 	iResult = shutdown(connect_socket, SD_BOTH);
 	if (iResult != 0)cout << "shutdown failed with error " << WSAGetLastError() << endl;
-
+	//if (iResult != 0)cout << FormatLastError(szError, WSAGetLastError()) << endl;;;;;;;;;;//cout << "shutdown failed with error " << WSAGetLastError() << endl;
+	//g_ActiveClients--;
 
 	//?) Освобождаем ресурсы WinSOCK:
 	closesocket(connect_socket);
 	WSACleanup();
+}
+VOID Receive(SOCKET connect_socket)
+{
+		//6) Получение данных от Сервера:
+	INT iResult = 0;
+		CHAR recv_buffer[MTU] = {/*initializer_list*/ };
+
+		do
+		{
+			ZeroMemory(recv_buffer, sizeof(recv_buffer));
+			iResult = recv(connect_socket, recv_buffer, MTU, NULL);
+			if (iResult > 0)cout << recv_buffer << endl;
+			else if (iResult == 0) cout << "Nothing received from Server" << endl;
+			else cout << "Receive failed with error: " << WSAGetLastError() << endl;
+		} while (true);
 }
