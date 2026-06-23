@@ -98,7 +98,7 @@ void main()
 
 		
 
-		cout << "Введите сообщение" << endl;
+		//cout << "Введите сообщение" << endl;
 		SetConsoleCP(1251);
 		cin.getline(send_buffer, MTU);
 		SetConsoleCP(866);
